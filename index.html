@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+</head>
+<body>
+    <h1>YouTube Video Downloader</h1>
+    <form id="downloadForm">
+        <input type="url" id="videoUrl" placeholder="Enter YouTube Video URL" required>
+        <button type="submit">Download</button>
+    </form>
+    <div id="status"></div>
+    <div id="downloadLink"></div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const statusDiv = document.getElementById('status');
+        const downloadLinkDiv = document.getElementById('downloadLink');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const videoUrl = document.getElementById('videoUrl').value;
+            statusDiv.innerHTML = 'Processing...';
+
+            try {
+                const response = await fetch('http://localhost:3000/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ videoUrl }),
+                });
+
+                const data = await response.json();
+                if (data.filePath) {
+                    statusDiv.innerHTML = `Download complete!<br>File saved at: ${data.filePath}`;
+                    downloadLinkDiv.innerHTML = `<a href="file:///${data.filePath}" download>Click here to download</a>`;
+                } else {
+                    statusDiv.innerHTML = `Error: ${data.message}`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
